@@ -56,4 +56,4 @@ export default function Navigation() {
         <OurTabs/>
     </NavigationContainer>
     );
-}
+};
