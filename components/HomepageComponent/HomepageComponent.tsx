@@ -17,7 +17,7 @@ export const HomePageComponent = () => {
       <div className="hero-container" id="hero-section">
         {/* Logo del equipo */}
         <div className="logo">
-          <img src="assets/logo.png" alt="Logo de Frontcraft BC" title="Frontcraft Basketball Club" />
+          <img src='/assets/images/logo.png' alt="Logo de Frontcraft BC" title="Frontcraft Basketball Club" />
         </div>
 
         {/* Texto principal */}
@@ -31,7 +31,7 @@ export const HomePageComponent = () => {
 
         {/* Flecha hacia abajo */}
         <div className="arrow" onClick={scrollToPlayers} title="Scroll Down">
-          <img src="assets/flecha-abajo.png" alt="Scroll down to explore" />
+          <img src='/assets/images/flecha-abajo.png' alt="Scroll down to explore" />
         </div>
 
         {/* Redes sociales del equipo */}
