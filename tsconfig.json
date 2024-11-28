@@ -7,7 +7,7 @@
         "./*"
       ]
     }
-  },
+  },"exclude": ["node_modules", "android", "ios"],
   "include": [
     "**/*.ts",
     "**/*.tsx",
