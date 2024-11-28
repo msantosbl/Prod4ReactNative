@@ -1,7 +1,7 @@
 // App.tsx
 import React from 'react';
 import { SafeAreaView, StyleSheet } from 'react-native';
-import FirestoreComponent from '../components/Firebase/FirestoreComponent';
+import FirestoreComponent from '../components/Firebase/FlatlistComponent';
 
 const App: React.FC = () => {
   return (
