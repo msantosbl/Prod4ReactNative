@@ -5,10 +5,13 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import {App} from '../App';
-
+import {HomePageComponent} from '../../components/HomepageComponent/HomepageComponent';
 export default function HomeScreen() {
   return (
+
+
     <ParallaxScrollView
+
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
       headerImage={
         <Image
@@ -16,6 +19,7 @@ export default function HomeScreen() {
           style={styles.reactLogo}
         />
       }>
+      <HomePageComponent/>
         <App />
     </ParallaxScrollView>
     
