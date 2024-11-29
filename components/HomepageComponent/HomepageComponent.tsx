@@ -1,7 +1,7 @@
 import React from 'react';
 import './HomepageComponent.css';
 
-export const HomePageComponent = () => {
+export const HomePageComponent  = () => {
 
   // Método para desplazarse hacia abajo 1000px
   const scrollToPlayers = () => {

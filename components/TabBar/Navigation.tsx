@@ -6,6 +6,8 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { HomePageComponent } from "../HomepageComponent/HomepageComponent";
+import {DetailComponent} from "@/components/DetailComponent/DetailComponent";
+import {MediaComponent} from "@/components/MediaComponent/MediaCompnent";
 
 
 
@@ -31,7 +33,7 @@ function OurTabs(){
         />
         <Tab.Screen 
         name='Detalles' 
-        component={HomePageComponent}
+        component={DetailComponent}
         options={{
             tabBarIcon: ({ color, size}) => (
                 <MaterialIcons name="query-stats" size={24} color="black" />
@@ -40,7 +42,7 @@ function OurTabs(){
         />
         <Tab.Screen 
         name='Multimedia' 
-        component={HomePageComponent}
+        component={MediaComponent}
         options={{
             tabBarIcon: ({ color, size}) => (
                 <AntDesign name="youtube" size={24} color="red" />
