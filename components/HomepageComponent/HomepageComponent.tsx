@@ -1,52 +1,87 @@
 import React from 'react';
-import './HomepageComponent.css';
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import FirestoreComponent from '../Firebase/FlatlistComponent'; // Asegúrate de que la ruta sea correcta
 
-export const HomePageComponent  = () => {
-
-  // Método para desplazarse hacia abajo 1000px
-  const scrollToPlayers = () => {
-    window.scrollBy(0, 1000);
-  };
-
-  // Método para explorar el equipo (simulación de desplazamiento hacia abajo)
+export const HomePageComponent: React.FC = () => {
   const exploreTeam = () => {
-    window.scrollBy(0, 1000);
+    console.log('Exploring our team');
   };
 
   return (
-      <div className="hero-container" id="hero-section">
-        {/* Logo del equipo */}
-        <div className="logo">
-          <img src='/assets/images/logo.png' alt="Logo de Frontcraft BC" title="Frontcraft Basketball Club" />
-        </div>
+    <ScrollView contentContainerStyle={styles.heroContainer}>
+      {/* Encabezado con logo y texto */}
+      <View style={styles.logo}>
+        <Image
+          source={require('../../assets/images/logo.png')}
+          style={styles.logoImage}
+          alt="Logo de Frontcraft BC"
+        />
+      </View>
 
-        {/* Texto principal */}
-        <div className="hero-content">
-          <h1 className="hero-title">Welcome to Frontcraft BC</h1>
-          <p className="hero-subtitle">Where Passion Meets Excellence on the Court</p>
+      <View style={styles.heroContent}>
+        <Text style={styles.heroTitle}>Welcome to Frontcraft BC</Text>
+        <Text style={styles.heroSubtitle}>Where Passion Meets Excellence on the Court</Text>
+        <TouchableOpacity style={styles.heroCta} onPress={exploreTeam}>
+          <Text style={styles.heroCtaText}>Explore our Team</Text>
+        </TouchableOpacity>
+      </View>
 
-          {/* Botón de llamada a la acción (Call to Action) */}
-          <button className="hero-cta" onClick={exploreTeam}>Explore our Team</button>
-        </div>
-
-        {/* Flecha hacia abajo */}
-        <div className="arrow" onClick={scrollToPlayers} title="Scroll Down">
-          <img src='/assets/images/flecha-abajo.png' alt="Scroll down to explore" />
-        </div>
-
-        {/* Redes sociales del equipo */}
-        <div className="social-icons">
-          <a href="https://facebook.com" target="_blank" title="Follow us on Facebook">
-            <i className="fab fa-facebook"></i>
-          </a>
-          <a href="https://instagram.com" target="_blank" title="Follow us on Instagram">
-            <i className="fab fa-instagram"></i>
-          </a>
-          <a href="https://twitter.com" target="_blank" title="Follow us on Twitter">
-            <i className="fab fa-twitter"></i>
-          </a>
-        </div>
-      </div>
+      {/* Componente de Firestore */}
+      <View style={styles.firestoreContainer}>
+        <Text style={styles.sectionTitle}>Our Players</Text>
+        <FirestoreComponent collectionName="jugadores" />
+      </View>
+    </ScrollView>
   );
 };
 
+// Estilos
+const styles = StyleSheet.create({
+  heroContainer: {
+    flexGrow: 1,
+    padding: 16,
+  },
+  logo: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  logoImage: {
+    width: 100,
+    height: 100,
+    resizeMode: 'contain',
+  },
+  heroContent: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  heroTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  heroSubtitle: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  heroCta: {
+    backgroundColor: '#000',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  heroCtaText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  firestoreContainer: {
+    marginTop: 20,
+    padding: 10,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+});

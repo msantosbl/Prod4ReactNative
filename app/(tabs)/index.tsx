@@ -1,40 +1,18 @@
-import {Image, StyleSheet, Platform, Animated} from 'react-native';
+import React from 'react';
+import { ScrollView, StyleSheet } from 'react-native';
+import { HomePageComponent } from '../../components/HomepageComponent/HomepageComponent'; // Tu componente de la página de inicio
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import {App} from '../App';
-import {HomePageComponent} from '../../components/HomepageComponent/HomepageComponent';
-import ScrollView = Animated.ScrollView;
 export default function HomeScreen() {
   return (
-
-
-<ScrollView>
-  <HomePageComponent/>
-  <App />
-</ScrollView>
-
-
+    <ScrollView contentContainerStyle={styles.scrollView}>
+    
+      <HomePageComponent />
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  scrollView: {
+    flexGrow: 1, // Permite que ScrollView ocupe todo el espacio disponible
   },
 });
