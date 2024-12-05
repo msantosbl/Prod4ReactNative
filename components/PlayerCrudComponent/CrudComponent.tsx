@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { FirebaseApp, initializeApp } from 'firebase/app';
+import React, {useEffect, useState, useRef} from 'react';
+import {getFirestore, collection, getDocs, doc, setDoc, updateDoc, deleteDoc} from 'firebase/firestore';
+import {FirebaseApp, initializeApp} from 'firebase/app';
 
 // Inicializar Firebase
 const firebaseConfig = {
@@ -14,7 +14,15 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const firestore = getFirestore(app);
 
-export const PlayersComponent: React.FC = () => {
+interface CrudComponentProps {
+    player: FirestoreItem; // Define qué tipo tiene `player`
+    onEdit: (updatedData: Partial<FirestoreItem>) => void;
+    onDelete: () => void;
+}
+
+
+const CrudComponent: React.FC<CrudComponentProps> = ({ player, onEdit, onDelete }) => {
+
     const [players, setPlayers] = useState<any[]>([]);
     const [filterTerm, setFilterTerm] = useState('');
     const [filterAge, setFilterAge] = useState<number | null>(null);
@@ -39,7 +47,7 @@ export const PlayersComponent: React.FC = () => {
         const fetchPlayers = async () => {
             const playersCollection = collection(firestore, 'jugadores');
             const snapshot = await getDocs(playersCollection);
-            const playersData = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+            const playersData = snapshot.docs.map(doc => ({...doc.data(), id: doc.id}));
             setPlayers(playersData);
             setFilteredPlayers(playersData);
         };
@@ -89,10 +97,10 @@ export const PlayersComponent: React.FC = () => {
             const playerRef = doc(firestore, `jugadores/${editedPlayer.id}`);
             await updateDoc(playerRef, editedPlayer);
             setPlayers(prev =>
-                prev.map(player => (player.id === editedPlayer.id ? { ...editedPlayer } : player))
+                prev.map(player => (player.id === editedPlayer.id ? {...editedPlayer} : player))
             );
             setFilteredPlayers(prev =>
-                prev.map(player => (player.id === editedPlayer.id ? { ...editedPlayer } : player))
+                prev.map(player => (player.id === editedPlayer.id ? {...editedPlayer} : player))
             );
             setIsEditing(false);
             setEditedPlayer(null);
