@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, Text, View, StyleSheet, TextInput, Button, Alert } from 'react-native';
-import { collection, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { FlatList, Text, View, StyleSheet, TextInput, Button, Alert, TouchableOpacity } from 'react-native';
+import { collection, getDocs, doc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../FirebaseConfig';
-import { CrudComponent } from "@/components/PlayerCrudComponent/CrudComponent";
 
 interface FirestoreItem {
   id: string;
@@ -10,22 +9,20 @@ interface FirestoreItem {
   position: string;
 }
 
-interface FirestoreComponentProps {
-  collectionName: string;
-}
-
-const FirestoreComponent: React.FC<FirestoreComponentProps> = ({ collectionName }) => {
+const FlatListComponent: React.FC = () => {
   const [data, setData] = useState<FirestoreItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [newPlayer, setNewPlayer] = useState<FirestoreItem>({ id: '', name: '', position: '' });
+  const [filterTerm, setFilterTerm] = useState('');
+  const [editedPlayer, setEditedPlayer] = useState<FirestoreItem | null>(null);
 
   useEffect(() => {
     fetchPlayers();
-  }, [collectionName]);
+  }, []);
 
   const fetchPlayers = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, collectionName));
+      const querySnapshot = await getDocs(collection(db, 'jugadores'));
       const items: FirestoreItem[] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as FirestoreItem));
       setData(items);
     } catch (error) {
@@ -40,29 +37,30 @@ const FirestoreComponent: React.FC<FirestoreComponentProps> = ({ collectionName 
       Alert.alert("Error", "Please fill out all fields.");
       return;
     }
-    // Add player logic here (Firebase add function)
-    // After adding:
-    setNewPlayer({ id: '', name: '', position: '' });
-    fetchPlayers(); // Refresh players
-  };
-
-  const editPlayer = async (id: string, updatedData: Partial<FirestoreItem>) => {
     try {
-      await updateDoc(doc(db, collectionName, id), updatedData);
-      fetchPlayers(); // Refresh players
+      const playerDoc = doc(collection(db, 'jugadores'));
+      await setDoc(playerDoc, { ...newPlayer, id: playerDoc.id });
+      setData(prev => [...prev, { ...newPlayer, id: playerDoc.id }]);
+      setNewPlayer({ id: '', name: '', position: '' });
     } catch (error) {
-      console.error("Error updating player:", error);
+      console.error("Error adding player:", error);
     }
   };
 
+
   const deletePlayer = async (id: string) => {
     try {
-      await deleteDoc(doc(db, collectionName, id));
-      fetchPlayers(); // Refresh players
+      const playerDoc = doc(db, 'jugadores', id);
+      await deleteDoc(playerDoc);
+      setData(prev => prev.filter(player => player.id !== id));
     } catch (error) {
       console.error("Error deleting player:", error);
     }
   };
+
+  const filteredData = data.filter(player =>
+      player.name.toLowerCase().includes(filterTerm.toLowerCase())
+  );
 
   if (loading) {
     return (
@@ -74,6 +72,14 @@ const FirestoreComponent: React.FC<FirestoreComponentProps> = ({ collectionName 
 
   return (
       <View style={styles.container}>
+        {/* Filter Section */}
+        <TextInput
+            style={styles.input}
+            placeholder="Filter by name"
+            value={filterTerm}
+            onChangeText={setFilterTerm}
+        />
+
         {/* Add Player Form */}
         <View style={styles.form}>
           <TextInput
@@ -93,21 +99,43 @@ const FirestoreComponent: React.FC<FirestoreComponentProps> = ({ collectionName 
 
         {/* Players List */}
         <FlatList
-            data={data}
+            data={filteredData}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
                 <View style={styles.item}>
-                  <Text style={styles.title}>{item.name || 'Unnamed Player'}</Text>
-                  <Text>{item.position || 'No position'}</Text>
-                  {/* Edit/Delete actions */}
-                  <CrudComponent
-                      player={item}
-                      onEdit={(updatedData) => editPlayer(item.id, updatedData)}
-                      onDelete={() => deletePlayer(item.id)}
-                  />
+                  <Text style={styles.title}>{item.name}</Text>
+                  <Text>{item.position}</Text>
+                  <View style={styles.actions}>
+                    <TouchableOpacity onPress={() => setEditedPlayer(item)}>
+                      <Text style={styles.actionText}>Edit</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => deletePlayer(item.id)}>
+                      <Text style={styles.actionText}>Delete</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
             )}
         />
+
+        {/* Edit Player Modal */}
+        {editedPlayer && (
+            <View style={styles.modal}>
+              <TextInput
+                  style={styles.input}
+                  placeholder="Player Name"
+                  value={editedPlayer.name}
+                  onChangeText={(text) => setEditedPlayer({ ...editedPlayer, name: text })}
+              />
+              <TextInput
+                  style={styles.input}
+                  placeholder="Player Position"
+                  value={editedPlayer.position}
+                  onChangeText={(text) => setEditedPlayer({ ...editedPlayer, position: text })}
+              />
+
+              <Button title="Cancel" onPress={() => setEditedPlayer(null)} />
+            </View>
+        )}
       </View>
   );
 };
@@ -144,6 +172,20 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 5,
   },
+  actions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  actionText: {
+    color: 'blue',
+    marginHorizontal: 10,
+  },
+  modal: {
+    padding: 20,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    marginTop: 20,
+  },
 });
 
-export default FirestoreComponent;
+export default FlatListComponent;
