@@ -4,7 +4,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { HomePageComponent } from "../HomepageComponent/HomepageComponent";
-import { DetailComponent } from "@/components/DetailComponent/DetailComponent";
+import  DetailComponent  from "../DetailComponent/DetailComponent";
 import { MediaComponent } from "@/components/MediaComponent/MediaComponent";
 
 // Crea el Tab Navigator
@@ -30,6 +30,7 @@ const OurTabs: React.FC = () => {  // Asegúrate de que esté correctamente tipa
                     tabBarIcon: ({ color, size }) => (
                         <MaterialIcons name="query-stats" size={24} color="black" />
                     ),
+                    headerShown: false,
                 }}
             />
             <Tab.Screen
@@ -39,6 +40,7 @@ const OurTabs: React.FC = () => {  // Asegúrate de que esté correctamente tipa
                     tabBarIcon: ({ color, size }) => (
                         <AntDesign name="youtube" size={24} color="red" />
                     ),
+                    headerShown: false,
                 }}
             />
         </Tab.Navigator>

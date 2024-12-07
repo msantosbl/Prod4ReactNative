@@ -1,0 +1,152 @@
+/* Estilos del contenedor principal */
+.hero-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8)),
+    url('/assets/images/baloncesto.jpg') no-repeat center center;
+    background-size: cover;
+    color: #fff;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    overflow: hidden;
+    background-attachment: fixed;
+}
+
+/* Estilos del logo */
+.logo img {
+    width: 150px;
+    height: auto;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 10;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    opacity: 0.9;
+}
+
+.logo img:hover {
+    transform: scale(1.1);
+    opacity: 1;
+}
+
+/* Contenido central del hero */
+.hero-content {
+    z-index: 2;
+    margin-top: -50px;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 20px 40px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.hero-title {
+    font-size: 4rem;
+    font-weight: bold;
+    margin: 0;
+    text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.7);
+    letter-spacing: 2px;
+    transition: color 0.3s ease;
+}
+
+.hero-title:hover {
+    color: #f39c12;
+}
+
+.hero-subtitle {
+    font-size: 1.8rem;
+    margin-top: 15px;
+    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+    font-weight: 300;
+    letter-spacing: 1px;
+    animation: fadeIn 2s ease-in-out;
+}
+
+/* Animación de desvanecimiento */
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+/* Flecha hacia abajo */
+.arrow {
+    position: absolute;
+    bottom: 20px;
+    cursor: pointer;
+    z-index: 10;
+    animation: bounce 2s infinite;
+}
+
+.arrow img {
+    width: 50px;
+    height: auto;
+    opacity: 0.7;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.arrow img:hover {
+    opacity: 1;
+    transform: translateY(10px);
+}
+
+/* Animación de rebote */
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-15px); }
+    60% { transform: translateY(-10px); }
+}
+
+/* Botón CTA (Call to Action) */
+.hero-cta {
+    margin-top: 30px;
+    padding: 15px 30px;
+    background-color: #f39c12;
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.hero-cta:hover {
+    background-color: #d35400;
+    transform: scale(1.05);
+}
+
+/* Redes sociales */
+.social-icons {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    display: flex;
+    gap: 15px;
+}
+
+.social-icons a {
+    color: #fff;
+    font-size: 1.5rem;
+    opacity: 0.8;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.social-icons a:hover {
+    opacity: 1;
+    transform: translateY(-5px);
+}
+
+/* Media queries para hacer la página más responsive */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.2rem;
+    }
+}

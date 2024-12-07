@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import FirestoreComponent from '../Firebase/FlatlistComponent'; // Asegúrate de que la ruta sea correcta
+import FlatListComponent from '../Firebase/FlatlistComponent';
 
 export const HomePageComponent: React.FC = () => {
   const exploreTeam = () => {
@@ -28,8 +29,8 @@ export const HomePageComponent: React.FC = () => {
 
       {/* Componente de Firestore */}
       <View style={styles.firestoreContainer}>
-        <Text style={styles.sectionTitle}>Our Players</Text>
-        <FirestoreComponent collectionName="jugadores" />
+        <Text style={styles.sectionTitle}>Our Team</Text>
+        <FlatListComponent collectionName="jugadores" fieldsToShow={['name', 'image', 'position', 'age', 'height', 'weight', 'ppg', 'apg', 'rpg']} />
       </View>
     </ScrollView>
   );
