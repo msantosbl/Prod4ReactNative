@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { FlatList, Text, View, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
+import {FlatList, Text, View, StyleSheet, TouchableOpacity, Image, ScrollView, Pressable} from 'react-native';
 import { db } from '../../FirebaseConfig';
 import { collection, getDocs } from 'firebase/firestore';
-import FirestoreComponent from '../Firebase/FlatlistComponent'; // Asegúrate de que el componente esté importado correctamente.
+import FirestoreComponent from '../Firebase/FlatlistComponent';
+import {useNavigation} from "@react-navigation/native"; // Asegúrate de que el componente esté importado correctamente.
 
 export const DetailComponent = () => {
   const [data, setData] = useState<any[]>([]);
@@ -24,27 +25,29 @@ export const DetailComponent = () => {
   const exploreTeam = () => {
     console.log('Exploring our team');
   };
+  const navigation = useNavigation(); // Hook de navegación
+
+  const goToHomePage = () => {
+    // @ts-ignore
+    navigation.navigate("Players"); // Asegúrate de que el nombre coincida con el del Tab.Navigator
+  };
 
   return (
-    <ScrollView contentContainerStyle={styles.heroContainer}>
-      {/* Encabezado con logo y texto */}
-      <View style={styles.logo}>
+      <ScrollView>
+      <Pressable style={styles.logo} onPress={goToHomePage}>
         <Image
-          source={require('../../assets/images/logo.png')}
-          style={styles.logoImage}
-          alt="Logo de Frontcraft BC"
+            source={require('../../assets/images/logo.png')}
+            style={styles.logoImage}
+            alt="Logo de Frontcraft BC"
         />
-      </View>
+      </Pressable>
 
-      <View style={styles.heroContent}>
-        <Text style={styles.heroTitle}>Welcome to Frontcraft BC</Text>
-        <Text style={styles.heroSubtitle}>Where Passion Meets Excellence on the Court</Text>
-        <TouchableOpacity style={styles.heroCta} onPress={exploreTeam}>
-          <Text style={styles.heroCtaText}>Explore our Team</Text>
-        </TouchableOpacity>
-      </View>
+  <View style={styles.heroContent}>
+    <Text style={styles.heroTitle}>Welcome to Frontcraft BC</Text>
+    <Text style={styles.heroSubtitle}>Where Passion Meets Excellence on the Court</Text>
+  </View>
 
-      {/* Flatlist para mostrar los jugadores */}
+
       <View style={styles.firestoreContainer}>
         <Text style={styles.sectionTitle}>Team Details</Text>
         <FlatList

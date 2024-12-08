@@ -16,6 +16,7 @@ export const HomePageComponent: React.FC = () => {
           source={require('../../assets/images/logo.png')}
           style={styles.logoImage}
           alt="Logo de Frontcraft BC"
+
         />
       </View>
 

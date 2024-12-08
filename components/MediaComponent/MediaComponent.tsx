@@ -1,34 +1,34 @@
-import React, { Component } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, ScrollView } from 'react-native';
+import React from 'react';
+import { StyleSheet, Text, View, Image, ScrollView, Pressable } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 export const MediaComponent = () => {
-    const exploreTeam = () => {
-        console.log('Exploring our team');
+    const navigation = useNavigation(); // Hook de navegación
+
+    const goToHomePage = () => {
+        // @ts-ignore
+        navigation.navigate("Players"); // Asegúrate de que el nombre coincida con el del Tab.Navigator
     };
 
     return (
         <ScrollView contentContainerStyle={styles.heroContainer}>
             {/* Encabezado con logo y texto */}
-            <View style={styles.logo}>
+            <Pressable style={styles.logo} onPress={goToHomePage}>
                 <Image
                     source={require('../../assets/images/logo.png')}
                     style={styles.logoImage}
                     alt="Logo de Frontcraft BC"
                 />
-            </View>
+            </Pressable>
 
             <View style={styles.heroContent}>
                 <Text style={styles.heroTitle}>Welcome to Frontcraft BC</Text>
                 <Text style={styles.heroSubtitle}>Where Passion Meets Excellence on the Court</Text>
-                <TouchableOpacity style={styles.heroCta} onPress={exploreTeam}>
-                    <Text style={styles.heroCtaText}>Explore our Team</Text>
-                </TouchableOpacity>
             </View>
 
             {/* Contenido específico del MediaComponent */}
             <View style={styles.content}>
                 <Text>Media</Text>
-
             </View>
         </ScrollView>
     );
@@ -62,16 +62,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         textAlign: 'center',
         marginBottom: 16,
-    },
-    heroCta: {
-        backgroundColor: '#000',
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 5,
-    },
-    heroCtaText: {
-        color: '#fff',
-        fontWeight: 'bold',
     },
     content: {
         padding: 20,
