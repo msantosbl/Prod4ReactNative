@@ -1,20 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import {
-    StyleSheet,
-    Text,
-    View,
-    Image,
-    ScrollView,
-    FlatList,
-    Button,
-    Alert,
-
-} from 'react-native';
+import { StyleSheet, Text, View, Image, ScrollView, FlatList, Button, Alert, ImageBackground, Pressable, TouchableOpacity } from 'react-native';
 import { collection, getDocs, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import * as ImagePicker from 'expo-image-picker';
 import * as VideoPicker from 'expo-image-picker';
-
-
+import {useNavigation} from "@react-navigation/native";
 import { Video } from 'expo-av';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Importa de Firebase Storage
 import { db, storage } from '../../FirebaseConfig'; // Usa tu configuración corregida
@@ -85,10 +74,15 @@ export const MediaComponent = () => {
             console.log("No se seleccionó ningún video");
         }
     };
+    const navigation = useNavigation(); 
 
-
-
-
+    const goToHomePage = () => {
+    
+        navigation.navigate("Players"); 
+      };
+      const exploreTeam = () => {
+        console.log('Exploring our team');
+      };
     const deleteVideo = async (playerId: string) => {
         try {
             const playerDoc = doc(db, 'jugadores', playerId);
@@ -135,6 +129,29 @@ export const MediaComponent = () => {
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
+         <ImageBackground
+        source={require('../../assets/images/baloncesto.jpg')} // Cambia "header-background.jpg" al nombre de tu imagen
+        style={styles.headerBackground}
+          />
+          <Pressable style={styles.logo} onPress={goToHomePage}>
+        <Image
+            source={require('../../assets/images/logo.png')}
+            style={styles.logoImage}
+            alt="Logo de Frontcraft BC"
+        />
+      </Pressable>
+
+      <View style={styles.heroContent}>
+        <Text style={styles.heroTitle}>Welcome to Frontcraft BC</Text>
+        <Text style={styles.heroSubtitle}>Where Passion Meets Excellence on the Court</Text>
+        <TouchableOpacity style={styles.heroCta} onPress={exploreTeam}>
+          <Text style={styles.heroCtaText}>Explore our Team</Text>
+        </TouchableOpacity>
+      </View>
+
+
+      
+      <Text style={styles.sectionTitle}>Team Media</Text>
             <FlatList
                 data={players}
                 keyExtractor={(item) => item.id}
@@ -142,7 +159,6 @@ export const MediaComponent = () => {
                 renderItem={renderPlayerItem}
                 contentContainerStyle={styles.gridContainer}
             />
-
         </ScrollView>
     );
 };
@@ -150,6 +166,24 @@ export const MediaComponent = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+    headerBackground: {
+    
+    },
+    headerContent: {
+        alignItems: 'center',
+    },
+    logoImage: {
+        width: 100,
+        height: 100,
+        resizeMode: 'contain',
+        marginBottom: 10,
+    },
+    headerTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#fff', 
+        textAlign: 'center',
     },
     gridContainer: {
         paddingHorizontal: 10,
@@ -191,4 +225,46 @@ const styles = StyleSheet.create({
         height: 100,
         marginBottom: 10,
     },
+
+    heroContainer: {
+        flexGrow: 1,
+        padding: 16,
+      },
+      logo: {
+        alignItems: 'center',
+        marginBottom: 20,
+      },
+      heroContent: {
+        alignItems: 'center',
+        marginBottom: 20,
+      },
+      heroTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginBottom: 8,
+        color: '#fff',
+      },
+      heroSubtitle: {
+        fontSize: 16,
+        textAlign: 'center',
+        marginBottom: 16,
+      },
+      heroCta: {
+        backgroundColor: '#000',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 5,
+      },
+      heroCtaText: {
+        color: '#fff',
+        fontWeight: 'bold',
+      },
+      sectionTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
+        color: '#fff'
+      }
 });
+

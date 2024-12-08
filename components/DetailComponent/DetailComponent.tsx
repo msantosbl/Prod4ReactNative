@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {FlatList, Text, View, StyleSheet, TouchableOpacity, Image, ScrollView, Pressable} from 'react-native';
+import {FlatList, Text, View, StyleSheet, TouchableOpacity, Image, ScrollView, Pressable, ImageBackground} from 'react-native';
 import { db } from '../../FirebaseConfig';
 import { collection, getDocs } from 'firebase/firestore';
 import FirestoreComponent from '../Firebase/FlatlistComponent';
@@ -25,15 +25,20 @@ export const DetailComponent = () => {
   const exploreTeam = () => {
     console.log('Exploring our team');
   };
-  const navigation = useNavigation(); // Hook de navegación
+  const navigation = useNavigation(); 
 
   const goToHomePage = () => {
-    // @ts-ignore
-    navigation.navigate("Players"); // Asegúrate de que el nombre coincida con el del Tab.Navigator
+    
+    navigation.navigate("Players"); 
   };
 
   return (
+   
       <ScrollView>
+        <ImageBackground
+        source={require('../../assets/images/baloncesto.jpg')} // Cambia "header-background.jpg" al nombre de tu imagen
+        style={styles.headerBackground}
+      />
       <Pressable style={styles.logo} onPress={goToHomePage}>
         <Image
             source={require('../../assets/images/logo.png')}
@@ -42,10 +47,14 @@ export const DetailComponent = () => {
         />
       </Pressable>
 
-  <View style={styles.heroContent}>
-    <Text style={styles.heroTitle}>Welcome to Frontcraft BC</Text>
-    <Text style={styles.heroSubtitle}>Where Passion Meets Excellence on the Court</Text>
-  </View>
+      <View style={styles.heroContent}>
+        <Text style={styles.heroTitle}>Welcome to Frontcraft BC</Text>
+        <Text style={styles.heroSubtitle}>Where Passion Meets Excellence on the Court</Text>
+        <TouchableOpacity style={styles.heroCta} onPress={exploreTeam}>
+          <Text style={styles.heroCtaText}>Explore our Team</Text>
+        </TouchableOpacity>
+      </View>
+
 
 
       <View style={styles.firestoreContainer}>
@@ -73,6 +82,10 @@ export const DetailComponent = () => {
 
 // Estilos
 const styles = StyleSheet.create({
+  headerBackground: {
+    flex: 1,
+    resizeMode: 'cover', 
+  },
   heroContainer: {
     flexGrow: 1,
     padding: 16,
@@ -95,6 +108,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 8,
+    color: '#fff',
   },
   heroSubtitle: {
     fontSize: 16,
@@ -114,11 +128,13 @@ const styles = StyleSheet.create({
   firestoreContainer: {
     marginTop: 20,
     padding: 10,
+    color: 'fff',
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
+    color:'#fff'
   },
   item: {
     padding: 15,

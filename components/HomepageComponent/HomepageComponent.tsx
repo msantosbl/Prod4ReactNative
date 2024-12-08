@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
 import FirestoreComponent from '../Firebase/FlatlistComponent'; // Asegúrate de que la ruta sea correcta
 import FlatListComponent from '../Firebase/FlatlistComponent';
 
@@ -11,6 +11,11 @@ export const HomePageComponent: React.FC = () => {
   return (
     <ScrollView contentContainerStyle={styles.heroContainer}>
       {/* Encabezado con logo y texto */}
+      <ImageBackground
+        source={require('../../assets/images/baloncesto.jpg')} // Cambia "header-background.jpg" al nombre de tu imagen
+        style={styles.headerBackground}
+      />
+      
       <View style={styles.logo}>
         <Image
           source={require('../../assets/images/logo.png')}
@@ -61,6 +66,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 8,
+    
   },
   heroSubtitle: {
     fontSize: 16,
@@ -72,9 +78,10 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
+    
   },
   heroCtaText: {
-    color: '#fff',
+    color:'#fff',
     fontWeight: 'bold',
   },
   firestoreContainer: {
@@ -85,5 +92,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: '#fff'
+  },
+  headerBackground: {
+
   },
 });
