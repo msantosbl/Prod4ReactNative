@@ -1,9 +1,12 @@
 // FirebaseConfig.js
+import firebase from "firebase/compat/app";
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
+import "firebase/compat/storage";
+
 
 // Your Firebase project configuration (from Firebase Console)
-const firebaseConfig = {
+ const firebaseConfig = {
     apiKey: "AIzaSyA0UTbAvRWCheukNzm4-DUWXHKlE2X2q2k",
     authDomain: "frontcraft-36a90.firebaseapp.com",
     projectId: "frontcraft-36a90",
@@ -13,5 +16,6 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
+export {firebase} ;
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);

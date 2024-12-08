@@ -28,6 +28,7 @@ export const MediaComponent = () => {
             {/* Contenido específico del MediaComponent */}
             <View style={styles.content}>
                 <Text>Media</Text>
+
             </View>
         </ScrollView>
     );
