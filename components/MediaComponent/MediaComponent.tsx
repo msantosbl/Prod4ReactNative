@@ -1,15 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Image, ScrollView, FlatList, Button, Alert, ImageBackground, Pressable, TouchableOpacity } from 'react-native';
-import { collection, getDocs, doc, setDoc, deleteDoc } from 'firebase/firestore';
-import * as ImagePicker from 'expo-image-picker';
-import * as VideoPicker from 'expo-image-picker';
-import {useNavigation} from "@react-navigation/native";
-import { Video } from 'expo-av';
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Importa de Firebase Storage
-import { db, storage } from '../../FirebaseConfig'; // Usa tu configuración corregida
-
-import firebase from "firebase/compat";
-
+import { StyleSheet, Text, View, Image, ScrollView, FlatList, Button, Alert, ImageBackground, Pressable, Modal, TextInput } from 'react-native';
+import { collection, getDocs, doc, setDoc } from 'firebase/firestore';
+import { useNavigation } from "@react-navigation/native";
+import { db } from '../../FirebaseConfig';
+import { useVideoPlayer, VideoView } from "expo-video";
 
 interface Player {
     id: string;
@@ -19,11 +13,46 @@ interface Player {
     video?: string | null;
 }
 
+const PlayerItem = ({ item, onEditVideo, onDeleteVideo, onPickVideo }: {
+    item: Player;
+    onEditVideo: (playerId: string, currentVideo: string) => void;
+    onDeleteVideo: (playerId: string) => void;
+    onPickVideo: (playerId: string) => void;
+}) => {
+    const videoPlayer = useVideoPlayer(item.video || '');
+
+    const handlePlayVideo = () => {
+        videoPlayer.play();
+    };
+
+    return (
+        <View style={styles.playerCard}>
+            <Image source={{ uri: item.image }} style={styles.playerImage} />
+            <Text style={styles.playerName}>{item.name}</Text>
+            <Text style={styles.playerPosition}>{item.position}</Text>
+            {item.video ? (
+                <View>
+                    <Text style={styles.videoLabel}>Best Play Video:</Text>
+                    <VideoView player={videoPlayer} style={styles.videoPlayer} />
+                    <Button title="Play Video" onPress={handlePlayVideo} />
+                    <Button title="Edit Video" onPress={() => onEditVideo(item.id, item.video ?? '')} />
+                    <Button title="Delete Video" onPress={() => onDeleteVideo(item.id)} />
+                </View>
+            ) : (
+                <Button title="Add Video" onPress={() => onPickVideo(item.id)} />
+            )}
+        </View>
+    );
+};
+
 export const MediaComponent = () => {
     const [players, setPlayers] = useState<Player[]>([]);
     const [loading, setLoading] = useState(true);
     const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
-    const [uploading, setUploading] = useState(false);
+    const [videoUrl, setVideoUrl] = useState<string>('');
+    const [modalVisible, setModalVisible] = useState(false);
+
+    const navigation = useNavigation();
 
     useEffect(() => {
         fetchPlayers();
@@ -41,83 +70,60 @@ export const MediaComponent = () => {
         }
     };
 
-    const pickVideo = async (playerId: string) => {
-        let result = await VideoPicker.launchImageLibraryAsync({
-            mediaTypes: VideoPicker.MediaTypeOptions.Videos,
-            allowsEditing: true,
-            quality: 1,
-        });
-
-        if (!result.canceled && result.assets && result.assets.length > 0) {
-            const source = { uri: result.assets[0].uri };
-
-            const filename = source.uri.substring(source.uri.lastIndexOf('/') + 1);
-            const storageRef = ref(storage, `video/${filename}`);
-
+    const handleAddVideo = async (playerId: string) => {
+        if (videoUrl) {
             try {
-                const response = await fetch(source.uri);
-                const blob = await response.blob();
-                await uploadBytes(storageRef, blob);
+                const playerDoc = doc(db, 'jugadores', playerId);
+                await setDoc(playerDoc, { video: videoUrl }, { merge: true });
 
-                const downloadURL = await getDownloadURL(storageRef);
+                setPlayers(prev => prev.map(player =>
+                    player.id === playerId ? { ...player, video: videoUrl } : player
+                ));
 
-                // Actualizar Firestore con la URL del video
-                const playerDoc = doc(db, "jugadores", playerId);
-                await setDoc(playerDoc, { video: downloadURL }, { merge: true });
-
-                Alert.alert("Éxito", "El video se subió correctamente.");
+                setModalVisible(false);
+                setVideoUrl('');
+                Alert.alert('Éxito', 'El enlace del video se guardó correctamente.');
             } catch (error) {
-                console.error("Error al subir el video:", error);
-                Alert.alert("Error", "Hubo un problema al subir el video.");
+                console.error('Error al guardar el video:', error);
+                Alert.alert('Error', 'Hubo un problema al guardar el video.');
             }
         } else {
-            console.log("No se seleccionó ningún video");
+            Alert.alert('Error', 'Por favor, ingresa un enlace de video válido.');
         }
     };
-    const navigation = useNavigation(); 
 
-    const goToHomePage = () => {
-    
-        navigation.navigate("Players"); 
-      };
-      const exploreTeam = () => {
-        console.log('Exploring our team');
-      };
     const deleteVideo = async (playerId: string) => {
         try {
             const playerDoc = doc(db, 'jugadores', playerId);
             await setDoc(playerDoc, { video: null }, { merge: true });
             setPlayers(prev => prev.map(p => (p.id === playerId ? { ...p, video: null } : p)));
-            Alert.alert('Success', 'Video deleted successfully');
+            Alert.alert('Éxito', 'Video eliminado correctamente');
         } catch (error) {
-            console.error('Error deleting video:', error);
-            Alert.alert('Error', 'Failed to delete video');
+            console.error('Error al eliminar el video:', error);
+            Alert.alert('Error', 'Hubo un problema al eliminar el video.');
         }
     };
 
+    const pickVideo = (playerId: string) => {
+        setEditingPlayer(players.find(p => p.id === playerId) || null);
+        setVideoUrl('');
+        setModalVisible(true);
+    };
+
+    const handleEditVideo = (playerId: string, currentVideo: string) => {
+        setEditingPlayer(players.find(p => p.id === playerId) || null);
+        setVideoUrl(currentVideo || '');
+        setModalVisible(true);
+    };
+
     const renderPlayerItem = ({ item }: { item: Player }) => (
-        <View style={styles.playerCard}>
-            <Image source={{ uri: item.image }} style={styles.playerImage} />
-            <Text style={styles.playerName}>{item.name}</Text>
-            <Text style={styles.playerPosition}>{item.position}</Text>
-            {item.video ? (
-                <View>
-                    <Text style={styles.videoLabel}>Best Play Video:</Text>
-                    <Video
-                        source={{ uri: item.video }}
-                        style={styles.videoPlayer}
-                        useNativeControls
-
-                    />
-                    <Button title="Edit Video" onPress={() => pickVideo(item.id)} />
-                    <Button title="Delete Video" onPress={() => deleteVideo(item.id)} />
-                </View>
-            ) : (
-                <Button title="Add Video" onPress={() => pickVideo(item.id)} />
-            )}
-        </View>
+        <PlayerItem
+            item={item}
+            onEditVideo={handleEditVideo}
+            onDeleteVideo={deleteVideo}
+            onPickVideo={pickVideo}
+        />
     );
-
 
     if (loading) {
         return (
@@ -129,61 +135,85 @@ export const MediaComponent = () => {
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
-         <ImageBackground
-        source={require('../../assets/images/baloncesto.jpg')} // Cambia "header-background.jpg" al nombre de tu imagen
-        style={styles.headerBackground}
-          />
-          <Pressable style={styles.logo} onPress={goToHomePage}>
-        <Image
-            source={require('../../assets/images/logo.png')}
-            style={styles.logoImage}
-            alt="Logo de Frontcraft BC"
-        />
-      </Pressable>
+            <ImageBackground
+                source={require('../../assets/images/baloncesto.jpg')}
+                style={styles.headerBackground}
+            />
+            <Pressable style={styles.logo} onPress={() => navigation.navigate("Players")}>
+                <Image source={require('../../assets/images/logo.png')} style={styles.logoImage} />
+            </Pressable>
 
-      <View style={styles.heroContent}>
-        <Text style={styles.heroTitle}>Welcome to Frontcraft BC</Text>
-        <Text style={styles.heroSubtitle}>Where Passion Meets Excellence on the Court</Text>
-        <TouchableOpacity style={styles.heroCta} onPress={exploreTeam}>
-          <Text style={styles.heroCtaText}>Explore our Team</Text>
-        </TouchableOpacity>
-      </View>
+            <View style={styles.heroContent}>
+                <Text style={styles.heroTitle}>Welcome to Frontcraft BC</Text>
+                <Text style={styles.heroSubtitle}>Where Passion Meets Excellence on the Court</Text>
+            </View>
 
-
-      
-      <Text style={styles.sectionTitle}>Team Media</Text>
+            <Text style={styles.sectionTitle}>Team Media</Text>
             <FlatList
                 data={players}
                 keyExtractor={(item) => item.id}
-                numColumns={3} // Tres columnas
+                numColumns={3}
                 renderItem={renderPlayerItem}
                 contentContainerStyle={styles.gridContainer}
             />
+
+            <Modal
+                visible={modalVisible}
+                animationType="slide"
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View style={styles.modalContainer}>
+                    <TextInput
+                        value={videoUrl}
+                        onChangeText={setVideoUrl}
+                        placeholder="Pega el enlace del video"
+                        style={styles.input}
+                    />
+                    <Button
+                        title={editingPlayer ? "Save Changes" : "Add Video"}
+                        onPress={() => handleAddVideo(editingPlayer?.id || '')}
+                    />
+                    <Button title="Cancel" onPress={() => setModalVisible(false)} />
+                </View>
+            </Modal>
         </ScrollView>
     );
 };
+
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    headerBackground: {
-    
-    },
-    headerContent: {
+    logo: {
         alignItems: 'center',
+        marginBottom: 20,
+    },
+    heroContent: {
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    heroTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginBottom: 8,
+        color: '#fff',
     },
     logoImage: {
         width: 100,
         height: 100,
         resizeMode: 'contain',
-        marginBottom: 10,
     },
-    headerTitle: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#fff', 
+    heroSubtitle: {
+        fontSize: 16,
         textAlign: 'center',
+        marginBottom: 16,
+    },
+    headerBackground: {
+        width: '100%',
+        height: 150,
+        marginBottom: 20,
     },
     gridContainer: {
         paddingHorizontal: 10,
@@ -200,7 +230,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     playerImage: {
-        width: 50, // Imagen más pequeña
+        width: 50,
         height: 50,
         borderRadius: 25,
         marginBottom: 10,
@@ -221,50 +251,26 @@ const styles = StyleSheet.create({
         marginVertical: 5,
     },
     videoPlayer: {
-        width: 100,
-        height: 100,
+        width: 200,
+        height: 120,
         marginBottom: 10,
     },
-
-    heroContainer: {
-        flexGrow: 1,
-        padding: 16,
-      },
-      logo: {
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
         alignItems: 'center',
+        padding: 20,
+    },
+    input: {
+        width: '80%',
+        padding: 10,
+        borderWidth: 1,
         marginBottom: 20,
-      },
-      heroContent: {
-        alignItems: 'center',
-        marginBottom: 20,
-      },
-      heroTitle: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        marginBottom: 8,
-        color: '#fff',
-      },
-      heroSubtitle: {
-        fontSize: 16,
-        textAlign: 'center',
-        marginBottom: 16,
-      },
-      heroCta: {
-        backgroundColor: '#000',
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 5,
-      },
-      heroCtaText: {
-        color: '#fff',
-        fontWeight: 'bold',
-      },
-      sectionTitle: {
+    },
+    sectionTitle: {
         fontSize: 18,
         fontWeight: 'bold',
         marginBottom: 10,
-        color: '#fff'
-      }
+        color: '#fff',
+    },
 });
-
