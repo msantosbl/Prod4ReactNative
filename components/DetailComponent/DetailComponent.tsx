@@ -83,8 +83,7 @@ export const DetailComponent = () => {
 // Estilos
 const styles = StyleSheet.create({
   headerBackground: {
-    flex: 1,
-    resizeMode: 'cover', 
+   
   },
   heroContainer: {
     flexGrow: 1,
