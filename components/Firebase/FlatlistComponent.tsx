@@ -1,16 +1,6 @@
+
 import React, { useEffect, useState } from 'react';
-import {
-  FlatList,
-  Text,
-  View,
-  StyleSheet,
-  TextInput,
-  Button,
-  Alert,
-  TouchableOpacity,
-  Image,
-  Modal,
-} from 'react-native';
+import {FlatList, Text, View, StyleSheet, TextInput, Button, Alert, TouchableOpacity, Image, Modal} from 'react-native';
 import { collection, getDocs, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import * as ImagePicker from 'expo-image-picker';
 import { firebase, db } from '../../FirebaseConfig';
@@ -35,6 +25,7 @@ interface FlatListComponentProps {
 const FlatListComponent: React.FC<FlatListComponentProps> = ({ collectionName, fieldsToShow }) => {
   const [data, setData] = useState<FirestoreItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [editingPlayer, setEditingPlayer] = useState<FirestoreItem | null>(null);
   const [newPlayer, setNewPlayer] = useState<FirestoreItem>({
     id: '',
     name: '',
@@ -46,7 +37,6 @@ const FlatListComponent: React.FC<FlatListComponentProps> = ({ collectionName, f
     rpg: '',
     image: '',
   });
-  const [editingPlayer, setEditingPlayer] = useState<FirestoreItem | null>(null);
   const [filterTerm, setFilterTerm] = useState('');
   const [uploading, setUploading] = useState(false);
 
@@ -63,6 +53,21 @@ const FlatListComponent: React.FC<FlatListComponentProps> = ({ collectionName, f
       console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+  const editPlayer = (player: FirestoreItem) => {
+    setEditingPlayer({ ...player });
+  };
+  const saveChanges = async () => {
+    if (editingPlayer) {
+      try {
+        const playerDoc = doc(db, collectionName, editingPlayer.id);
+        await setDoc(playerDoc, editingPlayer);
+        setData(prev => prev.map(player => (player.id === editingPlayer.id ? editingPlayer : player)));
+        setEditingPlayer(null);
+      } catch (error) {
+        console.error('Error saving changes:', error);
+      }
     }
   };
 
@@ -101,23 +106,6 @@ const FlatListComponent: React.FC<FlatListComponentProps> = ({ collectionName, f
     }
   };
 
-  const editPlayer = (player: FirestoreItem) => {
-    setEditingPlayer({ ...player });
-  };
-
-  const saveChanges = async () => {
-    if (editingPlayer) {
-      try {
-        const playerDoc = doc(db, collectionName, editingPlayer.id);
-        await setDoc(playerDoc, editingPlayer);
-        setData(prev => prev.map(player => (player.id === editingPlayer.id ? editingPlayer : player)));
-        setEditingPlayer(null);
-      } catch (error) {
-        console.error('Error saving changes:', error);
-      }
-    }
-  };
-
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -128,6 +116,7 @@ const FlatListComponent: React.FC<FlatListComponentProps> = ({ collectionName, f
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const source = { uri: result.assets[0].uri };
+      setNewPlayer(prev => ({ ...prev, image: source.uri }));
       if (editingPlayer) {
         setEditingPlayer(prev => ({ ...prev!, image: source.uri }));
       } else {
@@ -138,18 +127,50 @@ const FlatListComponent: React.FC<FlatListComponentProps> = ({ collectionName, f
     }
   };
 
+  const uploadImage = async () => {
+    if (!newPlayer.image) {
+      Alert.alert('Error', 'No image selected for upload');
+      return;
+    }
+    setUploading(true);
+    try {
+      const response = await fetch(newPlayer.image);
+      const blob = await response.blob();
+      const filename = newPlayer.image.substring(newPlayer.image.lastIndexOf('/') + 1);
+      const storageRef = firebase.storage().ref().child(filename);
+      await storageRef.put(blob);
+      const downloadURL = await storageRef.getDownloadURL();
+      setNewPlayer(prev => ({ ...prev, image: downloadURL }));
+      Alert.alert('Success', 'Image uploaded successfully');
+    } catch (error) {
+      console.error('Image upload failed:', error);
+    }
+    setUploading(false);
+  };
+
   const filteredData = data.filter(player => player.name.toLowerCase().includes(filterTerm.toLowerCase()));
 
   const renderFormFields = () => {
-    return fieldsToShow.map(field => (
-        <TextInput
-            key={field}
-            style={styles.input}
-            placeholder={`Player ${field.charAt(0).toUpperCase() + field.slice(1)}`}
-            value={(newPlayer as any)[field]}
-            onChangeText={text => setNewPlayer(prev => ({ ...prev, [field]: text }))}
-        />
-    ));
+    return (
+        <>
+          {fieldsToShow.map(field => (
+              <TextInput
+                  key={field}
+                  style={styles.input}
+                  placeholder={`Player ${field.charAt(0).toUpperCase() + field.slice(1)}`}
+                  value={(newPlayer as any)[field]}
+                  onChangeText={text => setNewPlayer(prev => ({ ...prev, [field]: text }))}
+              />
+          ))}
+          {fieldsToShow.includes('image') && (
+              <View style={styles.imageUploader}>
+                <Button title="Pick Image" onPress={pickImage} />
+                {newPlayer.image ? <Image source={{ uri: newPlayer.image }} style={styles.imagePreview} /> : null}
+                <Button title="Upload Image" onPress={uploadImage} disabled={uploading} />
+              </View>
+          )}
+        </>
+    );
   };
 
   if (loading) {
@@ -195,7 +216,6 @@ const FlatListComponent: React.FC<FlatListComponentProps> = ({ collectionName, f
                 </View>
             )}
         />
-
         {editingPlayer && (
             <Modal transparent={true} animationType="slide">
               <View style={styles.modalOverlay}>
@@ -227,6 +247,9 @@ const FlatListComponent: React.FC<FlatListComponentProps> = ({ collectionName, f
 };
 
 const styles = StyleSheet.create({
+  imageUploader: {
+    marginTop: 10,
+  },
   itemContent: {
     flexDirection: 'row', // Para alinear imagen y texto horizontalmente
     alignItems: 'center',
@@ -302,5 +325,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
 });
+
+
 
 export default FlatListComponent;
