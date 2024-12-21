@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "912709853795",
+    "project_id": "frontcraft-mobileprod4",
+    "storage_bucket": "frontcraft-mobileprod4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:912709853795:android:cd05d9bd5b3abee94e8e56",
+        "android_client_info": {
+          "package_name": "com.frontcraftprod4.androidapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAmRI9688krYCx4hBxIyKwQzcqj9ddtXac"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
