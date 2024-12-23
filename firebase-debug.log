@@ -1,0 +1,66 @@
+[debug] [2024-12-21T19:00:58.139Z] ----------------------------------------------------------------------
+[debug] [2024-12-21T19:00:58.141Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\marcg\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init functions
+[debug] [2024-12-21T19:00:58.141Z] CLI Version:   13.29.1
+[debug] [2024-12-21T19:00:58.141Z] Platform:      win32
+[debug] [2024-12-21T19:00:58.141Z] Node Version:  v22.11.0
+[debug] [2024-12-21T19:00:58.141Z] Time:          Sat Dec 21 2024 20:00:58 GMT+0100 (hora estándar de Europa central)
+[debug] [2024-12-21T19:00:58.141Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2024-12-21T19:00:58.178Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-12-21T19:00:58.178Z] > authorizing via signed-in user (mgayl@uoc.edu)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\marcg\Desktop\CFGS DAW\Prod4ReactNative
+
+Before we get started, keep in mind:
+
+  * You are initializing within an existing Firebase project directory
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] but for now we'll just set up a default project.
+[info] 
+[debug] [2024-12-21T19:01:03.966Z] Using project from CLI flag: frontcraft-mobileprod4
+[debug] [2024-12-21T19:01:03.966Z] Checked if tokens are valid: true, expires at: 1734809401713
+[debug] [2024-12-21T19:01:03.966Z] Checked if tokens are valid: true, expires at: 1734809401713
+[debug] [2024-12-21T19:01:03.967Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/frontcraft-mobileprod4 [none]
+[debug] [2024-12-21T19:01:04.325Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/frontcraft-mobileprod4 200
+[debug] [2024-12-21T19:01:04.325Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/frontcraft-mobileprod4 {"projectId":"frontcraft-mobileprod4","projectNumber":"912709853795","displayName":"Frontcraft-MobileProd4","name":"projects/frontcraft-mobileprod4","resources":{"hostingSite":"frontcraft-mobileprod4"},"state":"ACTIVE","etag":"1_d8833cc6-676c-4e27-93dd-8ad70c9d8355"}
+[info] i  Using project frontcraft-mobileprod4 (Frontcraft-MobileProd4) 
+[info] 
+=== Functions Setup
+[debug] [2024-12-21T19:01:04.329Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-12-21T19:01:04.330Z] > authorizing via signed-in user (mgayl@uoc.edu)
+[debug] [2024-12-21T19:01:04.330Z] [iam] checking project frontcraft-mobileprod4 for permissions ["firebase.projects.get"]
+[debug] [2024-12-21T19:01:04.330Z] Checked if tokens are valid: true, expires at: 1734809401713
+[debug] [2024-12-21T19:01:04.330Z] Checked if tokens are valid: true, expires at: 1734809401713
+[debug] [2024-12-21T19:01:04.330Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/frontcraft-mobileprod4:testIamPermissions [none]
+[debug] [2024-12-21T19:01:04.330Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/frontcraft-mobileprod4:testIamPermissions x-goog-quota-user=projects/frontcraft-mobileprod4
+[debug] [2024-12-21T19:01:04.330Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/frontcraft-mobileprod4:testIamPermissions {"permissions":["firebase.projects.get"]}
+[debug] [2024-12-21T19:01:05.025Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/frontcraft-mobileprod4:testIamPermissions 200
+[debug] [2024-12-21T19:01:05.025Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/frontcraft-mobileprod4:testIamPermissions {"permissions":["firebase.projects.get"]}
+[debug] [2024-12-21T19:01:05.026Z] Checked if tokens are valid: true, expires at: 1734809401713
+[debug] [2024-12-21T19:01:05.026Z] Checked if tokens are valid: true, expires at: 1734809401713
+[debug] [2024-12-21T19:01:05.026Z] Checked if tokens are valid: true, expires at: 1734809401713
+[debug] [2024-12-21T19:01:05.026Z] Checked if tokens are valid: true, expires at: 1734809401713
+[debug] [2024-12-21T19:01:05.026Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/frontcraft-mobileprod4/services/cloudfunctions.googleapis.com [none]
+[debug] [2024-12-21T19:01:05.026Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/frontcraft-mobileprod4/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/frontcraft-mobileprod4
+[debug] [2024-12-21T19:01:05.026Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/frontcraft-mobileprod4/services/runtimeconfig.googleapis.com [none]
+[debug] [2024-12-21T19:01:05.027Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/frontcraft-mobileprod4/services/runtimeconfig.googleapis.com x-goog-quota-user=projects/frontcraft-mobileprod4
+[debug] [2024-12-21T19:01:05.911Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/frontcraft-mobileprod4/services/runtimeconfig.googleapis.com 200
+[debug] [2024-12-21T19:01:05.911Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/frontcraft-mobileprod4/services/runtimeconfig.googleapis.com [omitted]
+[debug] [2024-12-21T19:01:05.912Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/frontcraft-mobileprod4/services/cloudfunctions.googleapis.com 200
+[debug] [2024-12-21T19:01:05.912Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/frontcraft-mobileprod4/services/cloudfunctions.googleapis.com [omitted]
+[info] 
+Detected existing codebase(s): default
+
