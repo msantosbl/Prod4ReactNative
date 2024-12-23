@@ -1,12 +1,26 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
-import FirestoreComponent from '../Firebase/FlatlistComponent'; // Asegúrate de que la ruta sea correcta
 import FlatListComponent from '../Firebase/FlatlistComponent';
+import {PermissionsAndroid} from 'react-native';
+import messaging from '@react-native-firebase/messaging';
 
 export const HomePageComponent: React.FC = () => {
   const exploreTeam = () => {
     console.log('Exploring our team');
   };
+
+  const getToken = async () => {
+    try {
+      const token = await messaging().getToken();
+      console.log('Token:', token);
+    } catch (error) {
+      console.error('Error getting token:', error);
+    }
+  }
+
+  useEffect(() => {
+  getToken();
+  }, []);
 
   return (
     <ScrollView contentContainerStyle={styles.heroContainer}>

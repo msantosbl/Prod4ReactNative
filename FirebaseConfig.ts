@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
+import messaging from '@react-native-firebase/messaging';
 
 // Tu configuración de Firebase
 const firebaseConfig = {
@@ -15,6 +16,7 @@ const firebaseConfig = {
 
 // Inicializar Firebase
 const app = initializeApp(firebaseConfig);
+
 
 // Exportar Firestore y otros servicios
 const db = getFirestore(app);

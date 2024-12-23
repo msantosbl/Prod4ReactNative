@@ -17,6 +17,35 @@
       "predeploy": [
         "npm --prefix \"$RESOURCE_DIR\" run lint"
       ]
+    },
+    {
+      "source": "frontcraft-pizza",
+      "codebase": "frontcraft-pizza",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
     }
-  ]
+  ],
+  "emulators": {
+    "functions": {
+      "port": 4000
+    },
+    "firestore": {
+      "port": 8000
+    },
+    "pubsub": {
+      "port": 8085
+    },
+    "ui": {
+      "enabled": true
+    },
+    "singleProjectMode": true
+  },
+  "database": {
+    "rules": "database.rules.json"
+  }
 }
