@@ -330,7 +330,7 @@ const FlatListComponent: React.FC = () => {
         )}
 
         {selectedPlayer && (
-            <Modal visible={modalVisible} animationType="slide" onRequestClose={() => setModalVisible(false)}>
+            <Modal visible={modalVisible} animationType="slide " onRequestClose={() => setModalVisible(false)}>
               <View style={styles.modalContainer}>
                 <Text>{selectedPlayer.name}</Text>
                 <Text>Position: {selectedPlayer.position}</Text>
