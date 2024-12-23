@@ -1,9 +1,21 @@
-
 import React, { useEffect, useState } from 'react';
-import {FlatList, Text, View, StyleSheet, TextInput, Button, Alert, TouchableOpacity, Image, Modal} from 'react-native';
+import {
+  FlatList,
+  Text,
+  View,
+  StyleSheet,
+  Button,
+  Image,
+  TouchableOpacity,
+  Modal,
+  TextInput,
+  Alert,
+} from 'react-native';
 import { collection, getDocs, doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { db } from '../../FirebaseConfig';
 import * as ImagePicker from 'expo-image-picker';
-import { firebase, db } from '../../FirebaseConfig';
+import firebase from 'firebase/app';
+import 'firebase/storage';
 
 interface FirestoreItem {
   id: string;
@@ -15,17 +27,16 @@ interface FirestoreItem {
   apg: string;
   rpg: string;
   image: string;
+  video?: string | null;
 }
 
-interface FlatListComponentProps {
-  collectionName: string;
-  fieldsToShow: string[];
-}
+const collectionName = 'jugadores';
 
-const FlatListComponent: React.FC<FlatListComponentProps> = ({ collectionName, fieldsToShow }) => {
+const FlatListComponent: React.FC = () => {
   const [data, setData] = useState<FirestoreItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [editingPlayer, setEditingPlayer] = useState<FirestoreItem | null>(null);
+  const [selectedPlayer, setSelectedPlayer] = useState<FirestoreItem | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
   const [newPlayer, setNewPlayer] = useState<FirestoreItem>({
     id: '',
     name: '',
@@ -37,17 +48,22 @@ const FlatListComponent: React.FC<FlatListComponentProps> = ({ collectionName, f
     rpg: '',
     image: '',
   });
+  const [editingPlayer, setEditingPlayer] = useState<FirestoreItem | null>(null);
   const [filterTerm, setFilterTerm] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [addPlayerModalVisible, setAddPlayerModalVisible] = useState(false);
 
   useEffect(() => {
     fetchData();
-  }, [collectionName]);
+  }, []);
 
   const fetchData = async () => {
     try {
       const querySnapshot = await getDocs(collection(db, collectionName));
-      const items: FirestoreItem[] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as FirestoreItem));
+      const items: FirestoreItem[] = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      } as FirestoreItem));
       setData(items);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -55,20 +71,10 @@ const FlatListComponent: React.FC<FlatListComponentProps> = ({ collectionName, f
       setLoading(false);
     }
   };
-  const editPlayer = (player: FirestoreItem) => {
-    setEditingPlayer({ ...player });
-  };
-  const saveChanges = async () => {
-    if (editingPlayer) {
-      try {
-        const playerDoc = doc(db, collectionName, editingPlayer.id);
-        await setDoc(playerDoc, editingPlayer);
-        setData(prev => prev.map(player => (player.id === editingPlayer.id ? editingPlayer : player)));
-        setEditingPlayer(null);
-      } catch (error) {
-        console.error('Error saving changes:', error);
-      }
-    }
+
+  const handlePlayerSelect = (player: FirestoreItem) => {
+    setSelectedPlayer(player);
+    setModalVisible(true);
   };
 
   const addPlayer = async () => {
@@ -91,8 +97,30 @@ const FlatListComponent: React.FC<FlatListComponentProps> = ({ collectionName, f
         rpg: '',
         image: '',
       });
+      setAddPlayerModalVisible(false); // Close modal after adding
     } catch (error) {
       console.error('Error adding player:', error);
+    }
+  };
+
+  const editPlayer = (player: FirestoreItem) => {
+    setEditingPlayer({ ...player }); // Set the player to be edited
+    setAddPlayerModalVisible(true); // Open the modal for editing
+  };
+
+  const saveChanges = async () => {
+    if (editingPlayer) {
+      try {
+        const playerDoc = doc(db, collectionName, editingPlayer.id);
+        await setDoc(playerDoc, editingPlayer); // Update player info in Firestore
+        setData(prev =>
+            prev.map(player => (player.id === editingPlayer.id ? editingPlayer : player))
+        );
+        setEditingPlayer(null); // Reset editing player state
+        setAddPlayerModalVisible(false); // Close the modal after saving
+      } catch (error) {
+        console.error('Error saving changes:', error);
+      }
     }
   };
 
@@ -116,7 +144,6 @@ const FlatListComponent: React.FC<FlatListComponentProps> = ({ collectionName, f
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const source = { uri: result.assets[0].uri };
-      setNewPlayer(prev => ({ ...prev, image: source.uri }));
       if (editingPlayer) {
         setEditingPlayer(prev => ({ ...prev!, image: source.uri }));
       } else {
@@ -153,22 +180,98 @@ const FlatListComponent: React.FC<FlatListComponentProps> = ({ collectionName, f
   const renderFormFields = () => {
     return (
         <>
-          {fieldsToShow.map(field => (
-              <TextInput
-                  key={field}
-                  style={styles.input}
-                  placeholder={`Player ${field.charAt(0).toUpperCase() + field.slice(1)}`}
-                  value={(newPlayer as any)[field]}
-                  onChangeText={text => setNewPlayer(prev => ({ ...prev, [field]: text }))}
-              />
-          ))}
-          {fieldsToShow.includes('image') && (
-              <View style={styles.imageUploader}>
-                <Button title="Pick Image" onPress={pickImage} />
-                {newPlayer.image ? <Image source={{ uri: newPlayer.image }} style={styles.imagePreview} /> : null}
-                <Button title="Upload Image" onPress={uploadImage} disabled={uploading} />
-              </View>
+          <TextInput
+              style={styles.input}
+              placeholder="Player Name"
+              value={editingPlayer ? editingPlayer.name : newPlayer.name}
+              onChangeText={text => {
+                if (editingPlayer) {
+                  setEditingPlayer(prev => ({ ...prev!, name: text }));
+                } else {
+                  setNewPlayer(prev => ({ ...prev, name: text }));
+                }
+              }}
+          />
+          <TextInput
+              style={styles.input}
+              placeholder="Player Position"
+              value={editingPlayer ? editingPlayer.position : newPlayer.position}
+              onChangeText={text => {
+                if (editingPlayer) {
+                  setEditingPlayer(prev => ({ ...prev!, position: text }));
+                } else {
+                  setNewPlayer(prev => ({ ...prev, position: text }));
+                }
+              }}
+          />
+          <TextInput
+              style={styles.input}
+              placeholder="Height"
+              value={editingPlayer ? editingPlayer.height : newPlayer.height}
+              onChangeText={text => {
+                if (editingPlayer) {
+                  setEditingPlayer(prev => ({ ...prev!, height: text }));
+                } else {
+                  setNewPlayer(prev => ({ ...prev, height: text }));
+                }
+              }}
+          />
+          <TextInput
+              style={styles.input}
+              placeholder="Weight"
+              value={editingPlayer ? editingPlayer.weight : newPlayer.weight}
+              onChangeText={text => {
+                if (editingPlayer) {
+                  setEditingPlayer(prev => ({ ...prev!, weight: text }));
+                } else {
+                  setNewPlayer(prev => ({ ...prev, weight: text }));
+                }
+              }}
+          />
+          <TextInput
+              style={styles.input}
+              placeholder="PPG"
+              value={editingPlayer ? editingPlayer.ppg : newPlayer.ppg}
+              onChangeText={text => {
+                if (editingPlayer) {
+                  setEditingPlayer(prev => ({ ...prev!, ppg: text }));
+                } else {
+                  setNewPlayer(prev => ({ ...prev, ppg: text }));
+                }
+              }}
+          />
+          <TextInput
+              style={styles.input}
+              placeholder="APG"
+              value={editingPlayer ? editingPlayer.apg : newPlayer.apg}
+              onChangeText={text => {
+                if (editingPlayer) {
+                  setEditingPlayer(prev => ({ ...prev!, apg: text }));
+                } else {
+                  setNewPlayer(prev => ({ ...prev, apg: text }));
+                }
+              }}
+          />
+          <TextInput
+              style={styles.input}
+              placeholder="RPG"
+              value={editingPlayer ? editingPlayer.rpg : newPlayer.rpg}
+              onChangeText={text => {
+                if (editingPlayer) {
+                  setEditingPlayer(prev => ({ ...prev!, rpg: text }));
+                } else {
+                  setNewPlayer(prev => ({ ...prev, rpg: text }));
+                }
+              }}
+          />
+          {editingPlayer?.image && (
+              <Image source={{ uri: editingPlayer.image }} style={styles.imagePreview} />
           )}
+          {newPlayer.image && !editingPlayer && (
+              <Image source={{ uri: newPlayer.image }} style={styles.imagePreview} />
+          )}
+          <Button title="Pick Image" onPress={pickImage} />
+          <Button title="Upload Image" onPress={uploadImage} disabled={uploading} />
         </>
     );
   };
@@ -183,62 +286,60 @@ const FlatListComponent: React.FC<FlatListComponentProps> = ({ collectionName, f
 
   return (
       <View style={styles.container}>
+        <Button title="Add Player" onPress={() => setAddPlayerModalVisible(true)} />
+
         <TextInput
             style={styles.input}
             placeholder="Filter by name"
             value={filterTerm}
             onChangeText={setFilterTerm}
         />
-        <View style={styles.form}>
-          {renderFormFields()}
-          <Button title="Add Player" onPress={addPlayer} />
-        </View>
         <FlatList
             data={filteredData}
             keyExtractor={item => item.id}
             renderItem={({ item }) => (
                 <View style={styles.item}>
-                  <View style={styles.itemContent}>
-                    {item.image ? (
-                        <Image source={{ uri: item.image }} style={styles.playerImage} />
-                    ) : null}
-                    <View style={styles.textContent}>
-                      <Text style={styles.title}>{item.name}</Text>
-                      <Text>{item.position}</Text>
-                      <TouchableOpacity onPress={() => editPlayer(item)}>
-                        <Text style={styles.actionText}>Edit</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => deletePlayer(item.id)}>
-                        <Text style={styles.actionText}>Delete</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
+                  <TouchableOpacity onPress={() => handlePlayerSelect(item)}>
+                    <Image source={{ uri: item.image }} style={styles.thumbnail} />
+                    <Text>{item.name}</Text>
+                    <Text>{item.position}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => editPlayer(item)}>
+                    <Text style={styles.actionText}>Edit</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => deletePlayer(item.id)}>
+                    <Text style={styles.actionText}>Delete</Text>
+                  </TouchableOpacity>
                 </View>
             )}
         />
-        {editingPlayer && (
+
+        {addPlayerModalVisible && (
             <Modal transparent={true} animationType="slide">
               <View style={styles.modalOverlay}>
                 <View style={styles.modalContent}>
-                  <Text style={styles.modalTitle}>Edit Player</Text>
-                  {fieldsToShow.map(field => (
-                      <TextInput
-                          key={field}
-                          style={styles.input}
-                          placeholder={`Edit ${field.charAt(0).toUpperCase() + field.slice(1)}`}
-                          value={(editingPlayer as any)[field]}
-                          onChangeText={text => setEditingPlayer(prev => ({ ...prev!, [field]: text }))}
-                      />
-                  ))}
-                  <Button title="Pick Image" onPress={pickImage} />
-                  {editingPlayer.image && (
-                      <Image source={{ uri: editingPlayer.image }} style={styles.imagePreview} />
-                  )}
-                  <View style={styles.modalActions}>
-                    <Button title="Cancel" onPress={() => setEditingPlayer(null)} />
-                    <Button title="Save" onPress={saveChanges} />
-                  </View>
+                  <Text style={styles.modalTitle}>
+                    {editingPlayer ? 'Edit Player' : 'Add Player'}
+                  </Text>
+                  {renderFormFields()}
+                  <Button title="Save" onPress={editingPlayer ? saveChanges : addPlayer} />
+                  <Button title="Cancel" onPress={() => setAddPlayerModalVisible(false)} />
                 </View>
+              </View>
+            </Modal>
+        )}
+
+        {selectedPlayer && (
+            <Modal visible={modalVisible} animationType="slide" onRequestClose={() => setModalVisible(false)}>
+              <View style={styles.modalContainer}>
+                <Text>{selectedPlayer.name}</Text>
+                <Text>Position: {selectedPlayer.position}</Text>
+                <Text>Height: {selectedPlayer.height}</Text>
+                <Text>Weight: {selectedPlayer.weight}</Text>
+                <Text>PPG: {selectedPlayer.ppg}</Text>
+                <Text>APG: {selectedPlayer.apg}</Text>
+                <Text>RPG: {selectedPlayer.rpg}</Text>
+                <Button title="Close" onPress={() => setModalVisible(false)} />
               </View>
             </Modal>
         )}
@@ -247,85 +348,63 @@ const FlatListComponent: React.FC<FlatListComponentProps> = ({ collectionName, f
 };
 
 const styles = StyleSheet.create({
-  imageUploader: {
-    marginTop: 10,
-  },
-  itemContent: {
-    flexDirection: 'row', // Para alinear imagen y texto horizontalmente
-    alignItems: 'center',
-  },
-  playerImage: {
-    width: 80,
-    height: 80,
-    marginRight: 15,
-    borderRadius: 10, // Puedes ajustar el borderRadius si lo deseas
-  },
-  textContent: {
-    flex: 1, // Esto asegura que el texto ocupe el espacio restante
-  },
   container: {
-    flex: 1,
-    padding: 15,
-    backgroundColor: '#f8f8f8',
+    flexGrow: 1,
+    padding: 10,
+    backgroundColor: '#f5f5f5',
   },
   input: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-  },
-  form: {
-    marginBottom: 20,
+    width: '80%',
     padding: 10,
-    backgroundColor: '#fff',
-    borderRadius: 10,
+    borderWidth: 1,
+    marginBottom: 20,
   },
   item: {
+    flex: 1,
+    margin: 10,
     padding: 15,
-    borderBottomWidth: 1,
-    borderColor: '#ddd',
     backgroundColor: '#fff',
     borderRadius: 8,
+    alignItems: 'center',
+  },
+  thumbnail: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     marginBottom: 10,
-  },
-  title: {
-    fontWeight: 'bold',
-    fontSize: 18,
-    marginBottom: 5,
-  },
-  actionText: {
-    color: 'blue',
-    marginTop: 5,
   },
   modalOverlay: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    width: '90%',
+    backgroundColor: 'white',
     padding: 20,
-    backgroundColor: '#fff',
     borderRadius: 10,
+    width: '80%',
+    alignItems: 'center',
   },
   modalTitle: {
     fontSize: 20,
     marginBottom: 10,
   },
-  modalActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
-  },
   imagePreview: {
     width: 100,
     height: 100,
-    marginVertical: 10,
+    marginBottom: 10,
+  },
+  actionText: {
+    color: 'red',
+    marginTop: 10,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
   },
 });
-
-
 
 export default FlatListComponent;

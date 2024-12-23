@@ -7,10 +7,10 @@ import { HomePageComponent } from "../HomepageComponent/HomepageComponent";
 import  DetailComponent  from "../DetailComponent/DetailComponent";
 import { MediaComponent } from "@/components/MediaComponent/MediaComponent";
 
-// Crea el Tab Navigator
+/* Crea el Tab Navigator
 const Tab = createBottomTabNavigator();
 
-const OurTabs: React.FC = () => {  // Asegúrate de que esté correctamente tipado
+/*const OurTabs: React.FC = () => {  // Asegúrate de que esté correctamente tipado
     return (
         <Tab.Navigator initialRouteName="Players" screenOptions={{ tabBarActiveTintColor: 'black' }}>
             <Tab.Screen
@@ -48,3 +48,4 @@ const OurTabs: React.FC = () => {  // Asegúrate de que esté correctamente tipa
 };
 
 export default OurTabs;
+*/

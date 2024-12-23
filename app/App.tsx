@@ -1,13 +1,14 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import OurTabs from '@/components/TabBar/Navigation';
-import {PlayersComponent} from "@/components/PlayerCrudComponent/CrudComponent"; // Ruta correcta
+
+import {HomePageComponent} from "@/components/HomepageComponent/HomepageComponent";
+
 
 const App = () => {
   return (
     <NavigationContainer>
-      <OurTabs /> {/* Aquí va tu Tab Navigator */}
 
+        <HomePageComponent />
     </NavigationContainer>
   );
 };

@@ -1,21 +1,22 @@
-// FirebaseConfig.js
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
-// Tu configuración de Firebase (de la consola de Firebase)
+// Tu configuración de Firebase
 const firebaseConfig = {
-   apiKey: "AIzaSyA0UTbAvRWCheukNzm4-DUWXHKlE2X2q2k",
-   authDomain: "frontcraft-36a90.firebaseapp.com",
-   projectId: "frontcraft-36a90",
-   storageBucket: "frontcraft-36a90.appspot.com",
-   messagingSenderId: "861086747402",
-   appId: "1:861086747402:web:a4acc427cce718ebb708f3",
+   apiKey: "AIzaSyCqj-5sry96Nzp8mAr6U2nDXC4Qf02_cLQ",
+   authDomain: "frontcraft-mobileprod4.firebaseapp.com",
+   projectId: "frontcraft-mobileprod4",
+   storageBucket: "frontcraft-mobileprod4.firebasestorage.app",
+   messagingSenderId: "912709853795",
+   appId: "1:912709853795:web:ee5ea89be064fdee4e8e56",
+   measurementId: "G-2D3QCS3FH1"
 };
 
-// Inicializa Firebase y sus servicios
+// Inicializar Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const storage = getStorage(app);
 
-export { app, db, storage};
+// Exportar Firestore y otros servicios
+const db = getFirestore(app);
+
+export { app, db };
