@@ -1,18 +1,9 @@
-/**
- * Import function triggers from their respective submodules:
- *
- * const {onCall} = require("firebase-functions/v2/https");
- * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
- */
+
 import { getMessaging, getToken } from "firebase/messaging";
 import messaging from '@react-native-firebase/messaging';
 import { Alert } from 'react-native';
 
-const {onRequest} = require("firebase-functions/v2/https");
-const logger = require("firebase-functions/logger");
-const {onValueCreated} = require("firebase-functions/v2/database");
+
 const functions = require('firebase-functions/v1');
 // The Firebase Admin SDK to access Firestore.
 const admin = require("firebase-admin");
@@ -58,10 +49,6 @@ exports.makeUppercase = functions.firestore
 //   logger.info("Hello logs!", {structuredData: true});
 //   response.send("Hello from Firebase!");
 // });
-
-const functions = require("firebase-functions");
-const admin = require("firebase-admin");
-admin.initializeApp();
 
 exports.sendNotificationOnFirestoreUpdate = functions.firestore
     .document('jugadores')
@@ -124,7 +111,7 @@ admin.initializeApp();
 
 // Envía notificaciones cuando se escriben o actualizan documentos en la colección "jugadores"
 exports.notifyOnJugadorChange = functions.firestore
-    .document("jugadores/{documentId}")
+    .document("jugadores}")
     .onWrite(async (change, context) => {
         const documentId = context.params.documentId;
 

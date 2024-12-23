@@ -1,6 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
+import { doc, getFirestore, setDoc } from 'firebase/firestore';
 import messaging from '@react-native-firebase/messaging';
 
 // Tu configuración de Firebase
