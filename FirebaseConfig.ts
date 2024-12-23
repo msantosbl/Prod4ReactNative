@@ -22,3 +22,30 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 export { app, db };
+
+// Solicitar permisos para notificaciones push
+export async function requestUserPermission() {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (enabled) {
+        console.log('Permiso para notificaciones otorgado:', authStatus);
+    } else {
+        console.log('Permiso para notificaciones denegado.');
+    }
+}
+
+// Obtener y registrar el token
+export async function getAndRegisterToken() {
+    const token = await messaging().getToken();
+    if (token) {
+        console.log('Token obtenido:', token);
+        // Guarda el token en Firestore
+        const userTokenRef = doc(db, "user_tokens", "usuario_id");
+        await setDoc(userTokenRef, { token });
+    } else {
+        console.log('No se pudo obtener el token.');
+    }
+}

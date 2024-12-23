@@ -6,9 +6,13 @@
  *
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
+import { getMessaging, getToken } from "firebase/messaging";
+import messaging from '@react-native-firebase/messaging';
+import { Alert } from 'react-native';
 
 const {onRequest} = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
+const {onValueCreated} = require("firebase-functions/v2/database");
 const functions = require('firebase-functions/v1');
 // The Firebase Admin SDK to access Firestore.
 const admin = require("firebase-admin");
@@ -54,3 +58,113 @@ exports.makeUppercase = functions.firestore
 //   logger.info("Hello logs!", {structuredData: true});
 //   response.send("Hello from Firebase!");
 // });
+
+const functions = require("firebase-functions");
+const admin = require("firebase-admin");
+admin.initializeApp();
+
+exports.sendNotificationOnFirestoreUpdate = functions.firestore
+    .document('jugadores')
+    .onWrite(async (change, context) => {
+        // Obtener el payload de la notificación
+        const newValue = change.after.data();
+        const notificationPayload = {
+            notification: {
+                title: "Nueva acción en Firestore",
+                body: `Un documento fue actualizado: ${newValue.name}`,
+                clickAction: "https://localhost:8081",
+            }
+        };
+
+        // Obtener tokens registrados
+        const tokens = await admin.firestore().collection('user_tokens').get();
+        const tokenList = tokens.docs.map(doc => doc.data().token);
+
+        // Enviar notificación
+        if (tokenList.length > 0) {
+            await admin.messaging().sendToDevice(tokenList, notificationPayload);
+        }
+    });
+
+    const messaging = getMessaging();
+
+getToken(messaging, { vapidKey: "YOUR_PUBLIC_VAPID_KEY" })
+    .then((currentToken) => {
+        if (currentToken) {
+            console.log("Token obtenido: ", currentToken);
+            // Guardar el token en Firestore
+            saveTokenToFirestore(currentToken);
+        } else {
+            console.log("No se pudo obtener el token.");
+        }
+    })
+    .catch((err) => {
+        console.error("Error al obtener el token: ", err);
+    });
+
+function saveTokenToFirestore(token) {
+    const db = getFirestore();
+    const userTokenRef = doc(db, "user_tokens", "usuario_id");
+    setDoc(userTokenRef, { token });
+};
+
+
+useEffect(() => {
+    // Listener para notificaciones en primer plano
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+        Alert.alert('Notificación recibida', JSON.stringify(remoteMessage.notification.body));
+    });
+
+    return unsubscribe; // Desmontar listener
+}, []);
+
+const functions = require("firebase-functions");
+const admin = require("firebase-admin");
+admin.initializeApp();
+
+// Envía notificaciones cuando se escriben o actualizan documentos en la colección "jugadores"
+exports.notifyOnJugadorChange = functions.firestore
+    .document("jugadores/{documentId}")
+    .onWrite(async (change, context) => {
+        const documentId = context.params.documentId;
+
+        // Detectar si el documento fue creado, actualizado o eliminado
+        if (!change.before.exists) {
+            // Documento creado
+            const newValue = change.after.data();
+            await sendNotification(`Nuevo jugador añadido: ${newValue.name}`);
+        } else if (!change.after.exists) {
+            // Documento eliminado
+            const oldValue = change.before.data();
+            await sendNotification(`Jugador eliminado: ${oldValue.name}`);
+        } else {
+            // Documento actualizado
+            const newValue = change.after.data();
+            await sendNotification(`Jugador actualizado: ${newValue.name}`);
+        }
+    });
+
+// Función para enviar notificaciones
+async function sendNotification(message) {
+    const tokensSnapshot = await admin.firestore().collection("user_tokens").get();
+    const tokens = tokensSnapshot.docs.map(doc => doc.data().token);
+
+    if (tokens.length > 0) {
+        const payload = {
+            notification: {
+                title: "Actualización en Jugadores",
+                body: message,
+                clickAction: "https://localhost:8081", // Ajusta la URL si es necesario
+            },
+        };
+
+        try {
+            await admin.messaging().sendToDevice(tokens, payload);
+            console.log("Notificación enviada correctamente");
+        } catch (error) {
+            console.error("Error al enviar la notificación:", error);
+        }
+    } else {
+        console.log("No hay tokens disponibles para enviar la notificación.");
+    }
+}

@@ -1,0 +1,4 @@
+18:51:25.691 [NamespaceSystem-akka.actor.default-dispatcher-4] INFO akka.event.slf4j.Slf4jLogger - Slf4jLogger started
+18:51:25.803 [main] INFO com.firebase.server.forge.App$ - Listening at 127.0.0.1:9000
+18:51:41.514 [NamespaceSystem-akka.actor.default-dispatcher-4] INFO com.firebase.core.namespace.NamespaceActor - frontcraft-mobileprod4-default-rtdb successfully activated FBKV (SurveyIdle(0)) wait: 93ms, init: 0ms
+18:51:41.578 [NamespaceSystem-blocking-namespace-operation-dispatcher-6] INFO com.firebase.core.namespace.StateManager - Namespace frontcraft-mobileprod4-default-rtdb status Active to Active
